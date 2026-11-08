@@ -1,6 +1,8 @@
 #include <iostream>
 #include <string>
 #include <windows.h>
+#include "FileName.h"
+#include "MessageTemplate.h"
 
 using namespace std;
 
@@ -98,27 +100,109 @@ using namespace std;
 
 // ===== Ваш код =====
 
+void parseStudent(const string& line);
+
 int main()
 {
     SetConsoleOutputCP(65001);
     SetConsoleCP(65001);
 
+
+    //РІВЕНЬ 1.
+    FileName report("report.final.docx"), photo("photo.png"), readme("README");
+    report.print();
+    photo.print();
+    readme.print();
+
+    cout << endl << "Меняем расширения: " << endl;;
+    report.changeExtension("pdf");
+    readme.changeExtension("md");
+    report.print();
+    readme.print();
+
+    cout << endl << "Копирование без конструкторов копирования:" << endl;
+    FileName copy = report;
+    copy.changeExtension("txt");
+    copy.print();
+    report.print();
+
+    cout << endl << "Кто стоит раньше?: " << endl;
+    if (photo.getBaseName() < report.getBaseName())
+        cout << "Раньше стоит имя: " << photo.getBaseName() << endl;
+    else
+        cout << "Раньше стоит имя: " << report.getBaseName() << endl;
+
+
+    //РІВЕНЬ 2.
+    string names[3] = { "Олена", "Марко", "Тарас" }; 
+    int scores[3] = { 11, 9, 12 };
+
+    MessageTemplate msg("Вітаю, {name}! Ваш бал за модуль: {score}. {name}, так тримати!");
+    cout << "Кількість місць для підстановки: " << msg.countPlaceholders() << endl;
+
+    for (int i = 0; i < 3; i++)
+    {
+        cout << msg.fill(names[i], scores[i]) << endl;
+    }
+    cout << endl;
+
+    //РІВЕНЬ 3.
+    parseStudent("Олена Коваль;20;olena.koval@itstep.org");
+
     return 0;
+}
+
+void parseStudent(const string& line) {
+    int index = line.find(';');
+    string name = line.substr(0, index);
+
+    int nextIndex = line.find(';', index + 1);
+    int age = stoi(line.substr(index + 1, nextIndex));
+    string email = line.substr(nextIndex + 1);
+
+    cout << "Ім'я: " + name << endl;
+    cout << "Вік : " << age << ", наступного року : " << age + 1 << endl;
+    cout << "Пошта : " << email << endl;
 }
 
 /*
   ВІДПОВІДІ НА ЧАСТИНУ «ПОЯСНИ»
 
-  1.
+  1. Як би ви писали getExtension, якби name був char*? Перелічіть кроки. Що з цього string зробив за вас?
 
-  2.
+     Перебирал бы в массиве посимвольно весь текст в поле char* name. И на каждом найденном символе '.' запоминал его индекс.
+     Затем отнял бы
+     int newSize = (size - 1) - index;
+     чтобы получить длину возвращаемого текста.
+     Потом создал new char*[newsize + 1] с дополнительным местом под '\n'
+     И в ещё одном цикле посимвольно записал необходимый текст
 
-  3.
+     Поиск индекса и запись подстроки string сделал за меня
 
-  4.
+  2. Що повертає find для "README"? Як ваш getExtension це обробляє?
+     Возвращает string::npos
+     getExtension не найдя символа '.' возвращает пустую строку
 
-  5.
+  3. У FileName немає деструктора і конструктора копіювання. Чому FileName copy = report; все одно працює правильно
+     і пам'ять не витікає?
 
-  6.
+     Потому что в классе string уже реализованы внури деконструктор и конструктор копирования
+     Поэтому его можно использовать, не применяя правило трёх
+
+  4. Чому string text = "Вітаю, " + "Олена"; не компілюється, а string text = "Вітаю, " + name; (name — string)
+     компілюється?
+
+     Потому что хоть один из операндов должен быть string, чтобы он правильно выполнил конкатенацию
+     В первом случае он видит, что все операнды типа char*
+
+  5. (Рівень 2) Чому в replaceAll шукаємо далі з position + to.length(), а не з початку рядка? Що станеться,
+     якщо студента звуть "{name}"?
+
+     Во первых: нет смысла перебирать с самого начала то, что уже перебрали
+     Во вторых: если имя будет "{name}", то перебирая с самого начала строки - мы никогда не дойдём до конца цикла
+
+  6. (Рівень 3) Навіщо перетворювати вік через stoi? Чому не можна просто додати 1 до рядка "20"?
+
+     Сложение строк работает не так как сложение целых чисел. Если к строке "20" прибавить 1, то компилятор выдаст ошибку
 
 */

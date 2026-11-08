@@ -139,7 +139,13 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="FileName.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MessageTemplate.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="FileName.h" />
+    <ClInclude Include="MessageTemplate.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
